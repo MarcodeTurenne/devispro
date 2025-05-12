@@ -1,0 +1,38 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin - DevisPro</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 40px; text-align: center; }
+    input, textarea { width: 300px; margin: 10px; padding: 8px; }
+    button { padding: 8px 15px; }
+  </style>
+</head>
+<body>
+  <h2>🔧 Panneau Admin - DevisPro</h2>
+  <input type="password" id="mdp" placeholder="Mot de passe admin"><br>
+  <button onclick="verifier()">Accéder</button>
+  <div id="adminPanel" style="display:none; margin-top:20px;">
+    <h3>Codes disponibles</h3>
+    <ul>
+      <li>artisan123 : 7 jours</li>
+      <li>chantier456 : 3 jours</li>
+      <li>client789 : 5 jours</li>
+    </ul>
+    <p>Pour modifier ces codes, mettez à jour le fichier <code>index.html</code>.</p>
+  </div>
+
+  <script>
+    function verifier() {
+      const pass = document.getElementById("mdp").value;
+      if (pass === "admin2025") {
+        document.getElementById("adminPanel").style.display = "block";
+      } else {
+        alert("Mot de passe incorrect.");
+      }
+    }
+  </script>
+</body>
+</html>

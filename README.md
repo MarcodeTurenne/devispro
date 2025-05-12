@@ -1,3 +1,5 @@
-# DevisPro (version sécurisée)
-
-Accès protégé par code unique, redirige vers la vraie application.
+# DevisPro - Version Complète
+- Accès sécurisé avec code
+- Durée limitée par utilisateur
+- Tableau de bord admin
+- Logo intégré
