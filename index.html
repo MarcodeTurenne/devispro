@@ -13,7 +13,7 @@
 </head>
 <body>
   <h2>🔐 Connexion à DevisPro</h2>
-  <p>Veuillez entrer le mot de passe :</p>
+  <p>Veuillez entrer votre mot de passe :</p>
   <input type="password" id="passwordInput" placeholder="Mot de passe">
   <br>
   <button onclick="verifier()">Entrer</button>
@@ -21,11 +21,27 @@
 
   <script>
     function verifier() {
-      const mdp = document.getElementById("passwordInput").value.trim();
-      if (mdp === "devispro2025") {
+      const pass = document.getElementById("passwordInput").value.trim();
+      const now = Date.now();
+      const storageKey = "devispro_trial_start";
+
+      if (pass === "devispro1338") {
         window.location.href = "app.html";
+      } else if (pass === "essai2025") {
+        const start = localStorage.getItem(storageKey);
+        if (!start) {
+          localStorage.setItem(storageKey, now);
+          window.location.href = "app.html";
+        } else {
+          const daysUsed = Math.floor((now - parseInt(start)) / (1000 * 60 * 60 * 24));
+          if (daysUsed < 5) {
+            window.location.href = "app.html";
+          } else {
+            document.getElementById("errorMsg").innerText = "⛔ Votre période d’essai est terminée.";
+          }
+        }
       } else {
-        document.getElementById("errorMsg").innerText = "❌ Mot de passe incorrect.";
+        document.getElementById("errorMsg").innerText = "❌ Mot de passe invalide.";
       }
     }
   </script>
