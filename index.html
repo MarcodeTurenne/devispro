@@ -1,69 +1,52 @@
 
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <title>Connexion artisan</title>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDq93BZsjjEpmAaJGvkiNYQ4gvrb078meg",
-      authDomain: "devispro-21b2e.firebaseapp.com",
-      projectId: "devispro-21b2e",
-      storageBucket: "devispro-21b2e.firebasestorage.app",
-      messagingSenderId: "445791723066",
-      appId: "1:445791723066:web:72504bf854501114659f03",
-      measurementId: "G-VVTSNGY3M4"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    async function verifierCode() {
-      const code = document.getElementById("code").value.trim();
-      const fingerprint = navigator.userAgent;
-      const docRef = doc(db, "codes", code);
-      const snap = await getDoc(docRef);
-
-      const erreur = document.getElementById("error");
-      if (!snap.exists()) {
-        erreur.innerText = "❌ Code inconnu.";
-        return;
-      }
-
-      const data = snap.data();
-      const now = Date.now();
-
-      if (!data.active) {
-        erreur.innerText = "⛔ Code désactivé.";
-      } else if (now > data.expire) {
-        erreur.innerText = "⏳ Code expiré.";
-      } else if (data.fingerprint && data.fingerprint !== fingerprint) {
-        erreur.innerText = "🔒 Ce code est déjà utilisé sur un autre appareil.";
-      } else {
-        // Verrouiller si première utilisation
-        if (!data.fingerprint) {
-          await fetch(`https://us-central1-${firebaseConfig.projectId}.cloudfunctions.net/lockCode?code=${code}&fp=${encodeURIComponent(fingerprint)}`);
-        }
-        window.location.href = "app.html";
-      }
-    }
-  </script>
-  <style>
-    body { font-family: sans-serif; text-align: center; padding: 40px; }
-    input { padding: 10px; width: 250px; font-size: 16px; }
-    button { margin-top: 20px; padding: 10px 20px; }
-    #error { color: red; margin-top: 15px; }
-  </style>
-</head>
+<head><meta charset="UTF-8"><title>Connexion artisan</title></head>
 <body>
-  <h2>🔐 Connexion Artisan</h2>
-  <p>Entrez votre code :</p>
+  <h2>Connexion Artisan</h2>
   <input type="text" id="code" placeholder="Code d'accès" />
-  <br>
   <button onclick="verifierCode()">Valider</button>
   <div id="error"></div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDq93BZsjjEpmAaJGvkiNYQ4gvrb078meg",
+  authDomain: "devispro-21b2e.firebaseapp.com",
+  projectId: "devispro-21b2e",
+  storageBucket: "devispro-21b2e.firebasestorage.app",
+  messagingSenderId: "445791723066",
+  appId: "1:445791723066:web:72504bf854501114659f03",
+  measurementId: "G-VVTSNGY3M4"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.verifierCode = async function() {
+  const code = document.getElementById("code").value.trim();
+  const fingerprint = navigator.userAgent;
+  const docRef = doc(db, "codes", code);
+  const snap = await getDoc(docRef);
+  const erreur = document.getElementById("error");
+
+  if (!snap.exists()) {
+    erreur.innerText = "❌ Code inconnu.";
+    return;
+  }
+  const data = snap.data();
+  const now = Date.now();
+
+  if (!data.active) {
+    erreur.innerText = "⛔ Code désactivé.";
+  } else if (now > data.expire) {
+    erreur.innerText = "⏳ Code expiré.";
+  } else if (data.fingerprint && data.fingerprint !== fingerprint) {
+    erreur.innerText = "🔒 Ce code est déjà utilisé sur un autre appareil.";
+  } else {
+    window.location.href = "app.html";
+  }
+};
+</script>
 </body>
 </html>
