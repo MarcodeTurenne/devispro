@@ -3,54 +3,31 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Accès sécurisé - DevisPro</title>
+  <title>Connexion - DevisPro</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f4f4f4; text-align: center; padding: 50px; }
-    input { padding: 10px; font-size: 16px; width: 250px; }
+    body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #f4f4f4; }
+    input { padding: 10px; font-size: 16px; width: 250px; margin-top: 10px; }
     button { padding: 10px 20px; font-size: 16px; margin-top: 20px; cursor: pointer; }
-    .error { color: red; margin-top: 10px; }
+    .error { color: red; margin-top: 15px; }
   </style>
 </head>
 <body>
-  <h2>🔒 Accès sécurisé à DevisPro</h2>
-  <p>Entrez votre code d'accès :</p>
-  <input type="text" id="codeInput" placeholder="Code d'accès"><br>
-  <button onclick="verifierCode()">Entrer</button>
+  <h2>🔐 Connexion à DevisPro</h2>
+  <p>Veuillez entrer le mot de passe :</p>
+  <input type="password" id="passwordInput" placeholder="Mot de passe">
+  <br>
+  <button onclick="verifier()">Entrer</button>
   <div class="error" id="errorMsg"></div>
 
   <script>
-    const codes = {{
-      "artisan123": 7,
-      "chantier456": 3,
-      "client789": 5
-    }};
-
-    function verifierCode() {{
-      const code = document.getElementById("codeInput").value.trim();
-      const now = new Date().getTime();
-      const errorMsg = document.getElementById("errorMsg");
-
-      if (!codes.hasOwnProperty(code)) {{
-        errorMsg.innerText = "❌ Code invalide.";
-        return;
-      }}
-
-      const storageKey = "devispro_" + code;
-      let record = localStorage.getItem(storageKey);
-
-      if (!record) {{
-        // Nouveau code utilisé
-        const expireTime = now + codes[code] * 24 * 60 * 60 * 1000;
-        localStorage.setItem(storageKey, expireTime);
+    function verifier() {
+      const mdp = document.getElementById("passwordInput").value.trim();
+      if (mdp === "devispro2025") {
         window.location.href = "app.html";
-      }} else {{
-        if (now < parseInt(record)) {{
-          window.location.href = "app.html";
-        }} else {{
-          errorMsg.innerText = "⚠️ Code expiré.";
-        }}
-      }}
-    }}
+      } else {
+        document.getElementById("errorMsg").innerText = "❌ Mot de passe incorrect.";
+      }
+    }
   </script>
 </body>
 </html>
