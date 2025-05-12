@@ -3,45 +3,37 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Connexion - DevisPro</title>
+  <title>Connexion artisan - DevisPro</title>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #f4f4f4; }
-    input { padding: 10px; font-size: 16px; width: 250px; margin-top: 10px; }
-    button { padding: 10px 20px; font-size: 16px; margin-top: 20px; cursor: pointer; }
+    body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f4f4f4; }
+    input { padding: 10px; font-size: 16px; width: 250px; }
+    button { padding: 10px 20px; font-size: 16px; margin-top: 20px; }
     .error { color: red; margin-top: 15px; }
   </style>
 </head>
 <body>
-  <h2>🔐 Connexion à DevisPro</h2>
-  <p>Veuillez entrer votre mot de passe :</p>
-  <input type="password" id="passwordInput" placeholder="Mot de passe">
+  <h2>🔐 Accès Artisan - DevisPro</h2>
+  <p>Entrez votre code personnel :</p>
+  <input type="text" id="codeInput" placeholder="Code d'accès">
   <br>
   <button onclick="verifier()">Entrer</button>
   <div class="error" id="errorMsg"></div>
 
   <script>
     function verifier() {
-      const pass = document.getElementById("passwordInput").value.trim();
+      const inputCode = document.getElementById("codeInput").value.trim();
       const now = Date.now();
-      const storageKey = "devispro_trial_start";
+      const storage = JSON.parse(localStorage.getItem("codesDevisPro") || "{}");
+      const key = "code_" + inputCode;
+      const expiration = storage[key];
 
-      if (pass === "devispro1338") {
-        window.location.href = "app.html";
-      } else if (pass === "essai2025") {
-        const start = localStorage.getItem(storageKey);
-        if (!start) {
-          localStorage.setItem(storageKey, now);
-          window.location.href = "app.html";
-        } else {
-          const daysUsed = Math.floor((now - parseInt(start)) / (1000 * 60 * 60 * 24));
-          if (daysUsed < 5) {
-            window.location.href = "app.html";
-          } else {
-            document.getElementById("errorMsg").innerText = "⛔ Votre période d’essai est terminée.";
-          }
-        }
+      if (!expiration) {
+        document.getElementById("errorMsg").innerText = "❌ Code invalide ou inexistant.";
+      } else if (now > expiration) {
+        document.getElementById("errorMsg").innerText = "⛔ Code expiré.";
       } else {
-        document.getElementById("errorMsg").innerText = "❌ Mot de passe invalide.";
+        localStorage.setItem("code_utilisé", key);
+        window.location.href = "app.html";
       }
     }
   </script>

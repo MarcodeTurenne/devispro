@@ -1,4 +1,3 @@
-# DevisPro - Version avec essai gratuit
+# DevisPro avec création de codes admin
 
-Mot de passe permanent : devispro1338
-Mot de passe d'essai : essai2025 (5 jours)
+Accès via `admin.html` pour générer des codes valables X jours.

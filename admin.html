@@ -3,36 +3,51 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Admin - DevisPro</title>
+  <title>Admin - Gestion des codes</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 40px; text-align: center; }
-    input, textarea { width: 300px; margin: 10px; padding: 8px; }
-    button { padding: 8px 15px; }
+    body { font-family: Arial, sans-serif; padding: 40px; text-align: center; background: #fff; }
+    input { padding: 8px; margin: 5px; width: 220px; }
+    button { padding: 10px 15px; margin-top: 10px; cursor: pointer; }
+    textarea { width: 90%; height: 200px; margin-top: 20px; }
   </style>
 </head>
 <body>
-  <h2>🔧 Panneau Admin - DevisPro</h2>
-  <input type="password" id="mdp" placeholder="Mot de passe admin"><br>
-  <button onclick="verifier()">Accéder</button>
-  <div id="adminPanel" style="display:none; margin-top:20px;">
-    <h3>Codes disponibles</h3>
-    <ul>
-      <li>artisan123 : 7 jours</li>
-      <li>chantier456 : 3 jours</li>
-      <li>client789 : 5 jours</li>
-    </ul>
-    <p>Pour modifier ces codes, mettez à jour le fichier <code>index.html</code>.</p>
-  </div>
+  <h2>🔧 Admin - Ajouter des codes d'accès</h2>
+  <input type="text" id="newCode" placeholder="Nom du code (ex: client001)">
+  <input type="number" id="duree" placeholder="Durée (jours)">
+  <br>
+  <button onclick="ajouterCode()">➕ Ajouter le code</button>
+
+  <h3>📋 Liste des codes enregistrés</h3>
+  <textarea id="codeList" readonly></textarea>
 
   <script>
-    function verifier() {
-      const pass = document.getElementById("mdp").value;
-      if (pass === "admin2025") {
-        document.getElementById("adminPanel").style.display = "block";
-      } else {
-        alert("Mot de passe incorrect.");
+    const textarea = document.getElementById("codeList");
+
+    function afficherCodes() {
+      const data = JSON.parse(localStorage.getItem("codesDevisPro") || "{}");
+      let affichage = "";
+      for (let code in data) {
+        const expire = new Date(data[code]);
+        affichage += code.replace("code_", "") + " → expire le " + expire.toLocaleDateString() + "\n";
       }
+      textarea.value = affichage || "Aucun code enregistré.";
     }
+
+    function ajouterCode() {
+      const code = document.getElementById("newCode").value.trim();
+      const jours = parseInt(document.getElementById("duree").value);
+      if (!code || isNaN(jours)) return alert("Veuillez remplir les deux champs.");
+
+      const now = Date.now();
+      const expireTime = now + jours * 24 * 60 * 60 * 1000;
+      const store = JSON.parse(localStorage.getItem("codesDevisPro") || "{}");
+      store["code_" + code] = expireTime;
+      localStorage.setItem("codesDevisPro", JSON.stringify(store));
+      afficherCodes();
+    }
+
+    afficherCodes();
   </script>
 </body>
 </html>
