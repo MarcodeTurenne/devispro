@@ -3,51 +3,70 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Admin - Gestion des codes</title>
+  <title>Admin DevisPro - Codes Firebase</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getFirestore, setDoc, doc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDq93BZsjjEpmAaJGvkiNYQ4gvrb078meg",
+      authDomain: "devispro-21b2e.firebaseapp.com",
+      projectId: "devispro-21b2e",
+      storageBucket: "devispro-21b2e.firebasestorage.app",
+      messagingSenderId: "445791723066",
+      appId: "1:445791723066:web:72504bf854501114659f03",
+      measurementId: "G-VVTSNGY3M4"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    document.getElementById("ajouter").onclick = async () => {
+      const code = document.getElementById("code").value.trim();
+      const nom = document.getElementById("nom").value.trim();
+      const jours = parseInt(document.getElementById("jours").value);
+      const expire = Date.now() + jours * 86400000;
+
+      if (!code || !nom || isNaN(jours)) {
+        alert("Remplis tous les champs");
+        return;
+      }
+
+      await setDoc(doc(db, "codes", code), {
+        nom,
+        expire,
+        active: true,
+        fingerprint: null
+      });
+
+      alert("✅ Code ajouté !");
+      window.location.reload();
+    };
+
+    window.onload = async () => {
+      const snapshot = await getDocs(collection(db, "codes"));
+      const zone = document.getElementById("liste");
+      snapshot.forEach(doc => {
+        const d = doc.data();
+        const exp = new Date(d.expire).toLocaleDateString();
+        zone.value += `${doc.id} → ${d.nom} | expire : ${exp} | actif : ${d.active}\n`;
+      });
+    };
+  </script>
   <style>
-    body { font-family: Arial, sans-serif; padding: 40px; text-align: center; background: #fff; }
+    body { font-family: sans-serif; text-align: center; padding: 40px; }
     input { padding: 8px; margin: 5px; width: 220px; }
-    button { padding: 10px 15px; margin-top: 10px; cursor: pointer; }
-    textarea { width: 90%; height: 200px; margin-top: 20px; }
+    button { padding: 10px 20px; margin-top: 10px; }
+    textarea { margin-top: 20px; width: 90%; height: 200px; }
   </style>
 </head>
 <body>
-  <h2>🔧 Admin - Ajouter des codes d'accès</h2>
-  <input type="text" id="newCode" placeholder="Nom du code (ex: client001)">
-  <input type="number" id="duree" placeholder="Durée (jours)">
+  <h2>🛠️ Admin - DevisPro</h2>
+  <input type="text" id="code" placeholder="Code (ex: client42)">
+  <input type="text" id="nom" placeholder="Nom de l'artisan">
+  <input type="number" id="jours" placeholder="Durée (jours)">
   <br>
-  <button onclick="ajouterCode()">➕ Ajouter le code</button>
-
-  <h3>📋 Liste des codes enregistrés</h3>
-  <textarea id="codeList" readonly></textarea>
-
-  <script>
-    const textarea = document.getElementById("codeList");
-
-    function afficherCodes() {
-      const data = JSON.parse(localStorage.getItem("codesDevisPro") || "{}");
-      let affichage = "";
-      for (let code in data) {
-        const expire = new Date(data[code]);
-        affichage += code.replace("code_", "") + " → expire le " + expire.toLocaleDateString() + "\n";
-      }
-      textarea.value = affichage || "Aucun code enregistré.";
-    }
-
-    function ajouterCode() {
-      const code = document.getElementById("newCode").value.trim();
-      const jours = parseInt(document.getElementById("duree").value);
-      if (!code || isNaN(jours)) return alert("Veuillez remplir les deux champs.");
-
-      const now = Date.now();
-      const expireTime = now + jours * 24 * 60 * 60 * 1000;
-      const store = JSON.parse(localStorage.getItem("codesDevisPro") || "{}");
-      store["code_" + code] = expireTime;
-      localStorage.setItem("codesDevisPro", JSON.stringify(store));
-      afficherCodes();
-    }
-
-    afficherCodes();
-  </script>
+  <button id="ajouter">➕ Ajouter le code</button>
+  <textarea id="liste" readonly placeholder="Liste des codes enregistrés..."></textarea>
 </body>
 </html>
