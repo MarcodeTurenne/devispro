@@ -1,3 +1,3 @@
 # DevisPro (version sécurisée)
 
-Accès protégé par code à usage unique local.
+Accès protégé par code unique, redirige vers la vraie application.
