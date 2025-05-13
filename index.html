@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>DevisPro – Créez vos devis en 1 clic</title>
+  <title>DevisPro – Connexion</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -29,43 +29,79 @@
       font-size: 18px;
       margin: 10px 0;
     }
-    .btn {
-      display: inline-block;
-      padding: 12px 24px;
-      background: #f97316;
-      color: white;
+    input {
+      padding: 10px;
       font-size: 16px;
+      width: 80%;
+      max-width: 300px;
+      margin-top: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #f97316;
+      color: white;
       border: none;
       border-radius: 5px;
+      margin-top: 10px;
+    }
+    button:hover {
+      background-color: #ea580c;
+    }
+    .message {
       margin-top: 20px;
-      text-decoration: none;
-    }
-    .btn:hover {
-      background: #ea580c;
-    }
-    footer {
-      margin-top: 40px;
-      font-size: 14px;
-      color: #888;
+      color: red;
     }
   </style>
+  <script type="module">
+    // Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDq93BZsjjEpmAaJGvkiNYQ4gvrb078meg",
+      authDomain: "devispro-21b2e.firebaseapp.com",
+      projectId: "devispro-21b2e",
+      storageBucket: "devispro-21b2e.appspot.com",
+      messagingSenderId: "445791723066",
+      appId: "1:445791723066:web:72504bf854501114659f03",
+      measurementId: "G-VVTSNGY3M4"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function verifierCode() {
+      const code = document.getElementById('codeInput').value.trim();
+      const ref = doc(db, "codes", code);
+      const snap = await getDoc(ref);
+
+      if (snap.exists()) {
+        const data = snap.data();
+        const now = new Date();
+        const expire = new Date(data.expire.seconds * 1000);
+        if (data.active && now < expire) {
+          window.location.href = "app.html";
+        } else {
+          document.getElementById('message').innerText = "⛔ Code expiré ou désactivé.";
+        }
+      } else {
+        document.getElementById('message').innerText = "❌ Code invalide.";
+      }
+    }
+  </script>
 </head>
 <body>
   <header>
-    <img src="logo.png" alt="Logo DevisPro" class="logo" />
-    <h1>DevisPro</h1>
-    <p>L'application simple et rapide pour créer vos devis en tant qu'artisan.</p>
-    <a class="btn" href="app.html">Se connecter avec un code</a>
+        <h1>Bienvenue dans DevisPro</h1>
+    <p>Application activée via Firebase 🔥</p>
   </header>
 
-  <section style="padding: 30px;">
-    <p>🛠️ Conçu pour tous les métiers : électriciens, plombiers, peintres, etc.</p>
-    <p>📱 Fonctionne sur mobile et tablette</p>
-    <p>🔐 Accès sécurisé avec un code unique</p>
-  </section>
-
-  <footer>
-    &copy; 2025 DevisPro – Tous droits réservés
-  </footer>
+  <main style="padding: 30px;">
+    <input type="text" id="codeInput" placeholder="Entrez votre code d’accès" />
+    <br />
+    <button onclick="verifierCode()">Se connecter</button>
+    <p id="message" class="message"></p>
+  </main>
 </body>
 </html>
