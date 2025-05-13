@@ -1,107 +1,66 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>DevisPro – Connexion</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #fff;
-      color: #333;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-    }
-    header {
-      padding: 20px;
-      background: #f4f4f4;
-    }
-    img.logo {
-      width: 120px;
-      margin-bottom: 10px;
-    }
-    h1 {
-      font-size: 26px;
-      margin-bottom: 10px;
-    }
-    p {
-      font-size: 18px;
-      margin: 10px 0;
-    }
-    input {
-      padding: 10px;
-      font-size: 16px;
-      width: 80%;
-      max-width: 300px;
-      margin-top: 20px;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #f97316;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      margin-top: 10px;
-    }
-    button:hover {
-      background-color: #ea580c;
-    }
-    .message {
-      margin-top: 20px;
-      color: red;
-    }
-  </style>
-  <script type="module">
-    // Firebase
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDq93BZsjjEpmAaJGvkiNYQ4gvrb078meg",
-      authDomain: "devispro-21b2e.firebaseapp.com",
-      projectId: "devispro-21b2e",
-      storageBucket: "devispro-21b2e.appspot.com",
-      messagingSenderId: "445791723066",
-      appId: "1:445791723066:web:72504bf854501114659f03",
-      measurementId: "G-VVTSNGY3M4"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    async function verifierCode() {
-      const code = document.getElementById('codeInput').value.trim();
-      const ref = doc(db, "codes", code);
-      const snap = await getDoc(ref);
-
-      if (snap.exists()) {
-        const data = snap.data();
-        const now = new Date();
-        const expire = new Date(data.expire.seconds * 1000);
-        if (data.active && now < expire) {
-          window.location.href = "app.html";
-        } else {
-          document.getElementById('message').innerText = "⛔ Code expiré ou désactivé.";
-        }
-      } else {
-        document.getElementById('message').innerText = "❌ Code invalide.";
-      }
-    }
-  </script>
+    <meta charset="UTF-8">
+    <title>DevisPro - Connexion</title>
+    <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding-top: 50px; }
+        input { padding: 10px; margin: 10px; width: 250px; }
+        button { padding: 10px 20px; background: orange; border: none; cursor: pointer; }
+    </style>
 </head>
 <body>
-  <header>
-        <h1>Bienvenue dans DevisPro</h1>
+    <h2>Bienvenue dans DevisPro</h2>
     <p>Application activée via Firebase 🔥</p>
-  </header>
+    <input type="text" id="codeInput" placeholder="Entrez votre code">
+    <button onclick="login()">Se connecter</button>
+    <p id="message" style="color: red;"></p>
 
-  <main style="padding: 30px;">
-    <input type="text" id="codeInput" placeholder="Entrez votre code d’accès" />
-    <br />
-    <button onclick="verifierCode()">Se connecter</button>
-    <p id="message" class="message"></p>
-  </main>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDq93BZsjjEpmAaJGvkiNYQ4gvrb078meg",
+            authDomain: "devispro-21b2e.firebaseapp.com",
+            projectId: "devispro-21b2e",
+            storageBucket: "devispro-21b2e.appspot.com",
+            messagingSenderId: "445791723066",
+            appId: "1:445791723066:web:72504bf854501114659f03",
+            measurementId: "G-VVTSNGY3M4"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        async function login() {
+            const code = document.getElementById("codeInput").value.trim();
+            const message = document.getElementById("message");
+
+            if (!code) {
+                message.textContent = "Veuillez entrer un code.";
+                return;
+            }
+
+            try {
+                const doc = await db.collection("codes").doc(code).get();
+                if (!doc.exists) {
+                    message.textContent = "Code invalide.";
+                    return;
+                }
+
+                const data = doc.data();
+                const now = Date.now();
+                if (!data.active) {
+                    message.textContent = "Code désactivé.";
+                } else if (now > data.expire) {
+                    message.textContent = "Code expiré.";
+                } else {
+                    window.location.href = "app.html";
+                }
+            } catch (error) {
+                message.textContent = "Erreur lors de la vérification.";
+                console.error(error);
+            }
+        }
+    </script>
 </body>
 </html>
