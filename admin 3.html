@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - DevisPro</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f9f9f9;
+      text-align: center;
+    }
+    h2 {
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    input, button {
+      padding: 10px;
+      width: 90%;
+      max-width: 300px;
+      font-size: 16px;
+    }
+    button {
+      cursor: pointer;
+    }
+    textarea {
+      width: 95%;
+      height: 200px;
+      margin-top: 20px;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h2>🛠️ Interface Admin – DevisPro</h2>
+  <div class="form-group">
+    <input type="text" id="code" placeholder="Code (ex: client42)">
+    <input type="text" id="nom" placeholder="Nom de l'artisan">
+    <input type="number" id="jours" placeholder="Durée (jours)">
+    <button id="ajouter">➕ Ajouter le code</button>
+    <button id="desactiver">🚫 Désactiver un code</button>
+    <button id="reactiver">♻️ Réactiver un code</button>
+  </div>
+  <textarea id="liste" readonly placeholder="Liste des codes..."></textarea>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getFirestore, setDoc, doc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDq93BZsjjEpmAaJGvkiNYQ4gvrb078meg",
+      authDomain: "devispro-21b2e.firebaseapp.com",
+      projectId: "devispro-21b2e",
+      storageBucket: "devispro-21b2e.firebasestorage.app",
+      messagingSenderId: "445791723066",
+      appId: "1:445791723066:web:72504bf854501114659f03",
+      measurementId: "G-VVTSNGY3M4"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    document.getElementById("ajouter").onclick = async () => {
+      const code = document.getElementById("code").value.trim();
+      const nom = document.getElementById("nom").value.trim();
+      const jours = parseInt(document.getElementById("jours").value);
+      const expire = Date.now() + jours * 86400000;
+
+      if (!code || !nom || isNaN(jours)) {
+        alert("Remplis tous les champs");
+        return;
+      }
+
+      await setDoc(doc(db, "codes", code), {
+        nom,
+        expire,
+        active: true,
+        fingerprint: null
+      });
+
+      alert("✅ Code ajouté !");
+      window.location.reload();
+    };
+
+    document.getElementById("desactiver").onclick = async () => {
+      const code = prompt("Quel code veux-tu désactiver ?");
+      if (!code) return;
+      const docRef = doc(db, "codes", code);
+      await setDoc(docRef, { active: false }, { merge: true });
+      alert("🚫 Code désactivé !");
+      window.location.reload();
+    };
+
+    document.getElementById("reactiver").onclick = async () => {
+      const code = prompt("Quel code veux-tu réactiver ?");
+      if (!code) return;
+      const docRef = doc(db, "codes", code);
+      await setDoc(docRef, { active: true }, { merge: true });
+      alert("♻️ Code réactivé !");
+      window.location.reload();
+    };
+
+    window.onload = async () => {
+      const snapshot = await getDocs(collection(db, "codes"));
+      const zone = document.getElementById("liste");
+      snapshot.forEach(doc => {
+        const d = doc.data();
+        const exp = new Date(d.expire).toLocaleDateString();
+        zone.value += `${doc.id} → ${d.nom} | expire : ${exp} | actif : ${d.active}\n`;
+      });
+    };
+  </script>
+</body>
+</html>
