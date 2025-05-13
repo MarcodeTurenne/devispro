@@ -1,52 +1,12 @@
-
 <!DOCTYPE html>
 <html lang="fr">
-<head><meta charset="UTF-8"><title>Connexion artisan</title></head>
-<body>
-  <h2>Connexion Artisan</h2>
-  <input type="text" id="code" placeholder="Code d'accès" />
-  <button onclick="verifierCode()">Valider</button>
-  <div id="error"></div>
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDq93BZsjjEpmAaJGvkiNYQ4gvrb078meg",
-  authDomain: "devispro-21b2e.firebaseapp.com",
-  projectId: "devispro-21b2e",
-  storageBucket: "devispro-21b2e.firebasestorage.app",
-  messagingSenderId: "445791723066",
-  appId: "1:445791723066:web:72504bf854501114659f03",
-  measurementId: "G-VVTSNGY3M4"
-};
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-window.verifierCode = async function() {
-  const code = document.getElementById("code").value.trim();
-  const fingerprint = navigator.userAgent;
-  const docRef = doc(db, "codes", code);
-  const snap = await getDoc(docRef);
-  const erreur = document.getElementById("error");
-
-  if (!snap.exists()) {
-    erreur.innerText = "❌ Code inconnu.";
-    return;
-  }
-  const data = snap.data();
-  const now = Date.now();
-
-  if (!data.active) {
-    erreur.innerText = "⛔ Code désactivé.";
-  } else if (now > data.expire) {
-    erreur.innerText = "⏳ Code expiré.";
-  } else if (data.fingerprint && data.fingerprint !== fingerprint) {
-    erreur.innerText = "🔒 Ce code est déjà utilisé sur un autre appareil.";
-  } else {
-    window.location.href = "app.html";
-  }
-};
-</script>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DevisPro</title>
+</head>
+<body style="font-family:Arial;text-align:center;margin-top:100px">
+  <h1>Bienvenue dans DevisPro 👷</h1>
+  <p>Contenu principal de l'application ici.</p>
 </body>
 </html>
