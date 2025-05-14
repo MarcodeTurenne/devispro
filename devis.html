@@ -1,1 +1,106 @@
-<!-- PLACEHOLDER -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Devis Autoentrepreneur - DevisPro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore-compat.js"></script>
+  <style>
+    body { font-family: Arial; padding: 20px; max-width: 600px; margin: auto; background: #f9f9f9; }
+    h2 { text-align: center; margin-bottom: 20px; }
+    input, textarea { width: 100%; padding: 10px; margin-bottom: 10px; font-size: 16px; }
+    label { font-weight: bold; margin-top: 10px; display: block; }
+    button { background: orange; border: none; padding: 10px 20px; font-size: 16px; cursor: pointer; width: 100%; }
+    .result { margin-top: 20px; background: #fff; padding: 15px; border: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+  <h2>Créer un devis</h2>
+  <label>Nom du client</label>
+  <input type="text" id="client" placeholder="Nom du client">
+
+  <label>Prix de vente total (€)</label>
+  <input type="number" id="vente" placeholder="Montant total du devis">
+
+  <label>Coûts matériaux (€)</label>
+  <input type="number" id="materiaux" placeholder="Matériaux">
+
+  <label>Sous-traitance (€)</label>
+  <input type="number" id="sous_traitance" placeholder="Sous-traitance">
+
+  <label>Autres frais (€)</label>
+  <input type="number" id="autres" placeholder="Frais divers">
+
+  <button onclick="calculer()">Calculer les frais et le net</button>
+
+  <div class="result" id="resultat" style="display:none;">
+    <p><strong>Frais estimés :</strong></p>
+    <p>URSSAF (10%) : <span id="urssaf"></span> €</p>
+    <p>Cotisation (21.1%) : <span id="cotisation"></span> €</p>
+    <p>Autres frais : <span id="total_frais"></span> €</p>
+    <p><strong>Gain net estimé : <span id="net"></span> €</strong></p>
+    <button onclick="enregistrer()">💾 Enregistrer dans Firebase</button>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDq93BZsjjEpmAaJGvkiNYQ4gvrb078meg",
+      authDomain: "devispro-21b2e.firebaseapp.com",
+      projectId: "devispro-21b2e",
+      storageBucket: "devispro-21b2e.appspot.com",
+      messagingSenderId: "445791723066",
+      appId: "1:445791723066:web:72504bf854501114659f03"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    function calculer() {
+      const vente = parseFloat(document.getElementById("vente").value) || 0;
+      const mat = parseFloat(document.getElementById("materiaux").value) || 0;
+      const sous = parseFloat(document.getElementById("sous_traitance").value) || 0;
+      const autres = parseFloat(document.getElementById("autres").value) || 0;
+
+      const urssaf = vente * 0.10;
+      const cotisation = vente * 0.211;
+      const total_frais = mat + sous + autres + urssaf + cotisation;
+      const net = vente - total_frais;
+
+      document.getElementById("urssaf").textContent = urssaf.toFixed(2);
+      document.getElementById("cotisation").textContent = cotisation.toFixed(2);
+      document.getElementById("total_frais").textContent = total_frais.toFixed(2);
+      document.getElementById("net").textContent = net.toFixed(2);
+      document.getElementById("resultat").style.display = "block";
+    }
+
+    async function enregistrer() {
+      const client = document.getElementById("client").value;
+      const vente = parseFloat(document.getElementById("vente").value) || 0;
+      const mat = parseFloat(document.getElementById("materiaux").value) || 0;
+      const sous = parseFloat(document.getElementById("sous_traitance").value) || 0;
+      const autres = parseFloat(document.getElementById("autres").value) || 0;
+      const urssaf = vente * 0.10;
+      const cotisation = vente * 0.211;
+      const total_frais = mat + sous + autres + urssaf + cotisation;
+      const net = vente - total_frais;
+
+      if (!client || vente <= 0) {
+        alert("Remplis le nom du client et un montant de vente.");
+        return;
+      }
+
+      try {
+        await db.collection("devis").add({
+          client, vente, mat, sous, autres,
+          urssaf, cotisation, total_frais, net,
+          date: new Date()
+        });
+        alert("✅ Devis enregistré !");
+      } catch (e) {
+        alert("Erreur d'enregistrement.");
+        console.error(e);
+      }
+    }
+  </script>
+</body>
+</html>
