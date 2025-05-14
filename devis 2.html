@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Devis Autoentrepreneur - DevisPro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: Arial; padding: 20px; background: #f8f8f8; max-width: 900px; margin: auto; }
+    h2 { text-align: center; }
+    input, select, textarea { width: 100%; padding: 10px; margin: 8px 0; font-size: 16px; }
+    label { font-weight: bold; display: block; margin-top: 10px; }
+    button { padding: 10px 20px; margin: 10px 5px 0 0; background-color: orange; border: none; color: white; font-size: 16px; cursor: pointer; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 600px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+    .section { background: #fff; padding: 15px; margin-top: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+  </style>
+</head>
+<body>
+  <h2>Devis Autoentrepreneur</h2>
+
+  <div class="section">
+    <label>Nom du client</label>
+    <input id="client" type="text">
+
+    <label>Date</label>
+    <input id="date" type="date">
+
+    <label>Nombre de jours</label>
+    <input id="jours" type="number" value="1">
+
+    <label>Tarif jour (€)</label>
+    <input id="tarif" type="number" value="300">
+
+    <label>Matériaux (€)</label>
+    <input id="materiaux" type="number" value="0">
+
+    <label>Sous-traitance (€)</label>
+    <input id="sous_traitance" type="number" value="0">
+
+    <label>Autres frais (€)</label>
+    <input id="frais" type="number" value="0">
+
+    <label>Marge souhaitée (%)</label>
+    <input id="marge" type="number" value="10">
+
+    <label>TVA (%)</label>
+    <input id="tva" type="number" value="20">
+
+    <label>Notes</label>
+    <textarea id="notes"></textarea>
+
+    <button onclick="calculer()">Calculer</button>
+    <button onclick="sauvegarder()">Sauvegarder</button>
+    <button onclick="telecharger()">Télécharger PDF</button>
+    <button onclick="resetForm()">Réinitialiser</button>
+  </div>
+
+  <div class="section" id="resultat" style="display:none;">
+    <h3>Résultat</h3>
+    <div id="details"></div>
+  </div>
+
+  <script>
+    function calculer() {
+      alert("✅ Fonction calculer appelée");
+
+      const jours = parseFloat(document.getElementById("jours").value);
+      const tarif = parseFloat(document.getElementById("tarif").value);
+      const materiaux = parseFloat(document.getElementById("materiaux").value);
+      const sous_traitance = parseFloat(document.getElementById("sous_traitance").value);
+      const frais = parseFloat(document.getElementById("frais").value);
+      const marge = parseFloat(document.getElementById("marge").value) / 100;
+      const tva = parseFloat(document.getElementById("tva").value) / 100;
+
+      const salaire = jours * tarif;
+      const urssaf = salaire * 0.1;
+      const cotisation = salaire * 0.211;
+      const imprevus = salaire * 0.05;
+      const retraite = salaire * 0.05;
+      const total_frais = materiaux + sous_traitance + frais + urssaf + cotisation + imprevus + retraite;
+      const total_ht = salaire + total_frais;
+      const total_marge = total_ht * (1 + marge);
+      const total_ttc = total_marge * (1 + tva);
+
+      let html = "";
+      html += `<p>Salaire estimé : <strong>${salaire.toFixed(2)} €</strong></p>`;
+      html += `<p>URSSAF : ${urssaf.toFixed(2)} €, Cotisation : ${cotisation.toFixed(2)} €</p>`;
+      html += `<p>Matériaux : ${materiaux.toFixed(2)} €, Sous-traitance : ${sous_traitance.toFixed(2)} €</p>`;
+      html += `<p>Frais autres : ${frais.toFixed(2)} €, Imprévus : ${imprevus.toFixed(2)} €, Retraite : ${retraite.toFixed(2)} €</p>`;
+      html += `<p><strong>Total HT avec marge : ${total_marge.toFixed(2)} €</strong></p>`;
+      html += `<p><strong>Total TTC : ${total_ttc.toFixed(2)} €</strong></p>`;
+
+      document.getElementById("details").innerHTML = html;
+      document.getElementById("resultat").style.display = "block";
+    }
+
+    function sauvegarder() {
+      const devis = {
+        client: document.getElementById("client").value,
+        date: document.getElementById("date").value,
+        jours: document.getElementById("jours").value,
+        tarif: document.getElementById("tarif").value,
+        materiaux: document.getElementById("materiaux").value,
+        sous_traitance: document.getElementById("sous_traitance").value,
+        frais: document.getElementById("frais").value,
+        marge: document.getElementById("marge").value,
+        tva: document.getElementById("tva").value,
+        notes: document.getElementById("notes").value
+      };
+      localStorage.setItem("dernierDevis", JSON.stringify(devis));
+      alert("✅ Devis sauvegardé localement.");
+    }
+
+    function telecharger() {
+      const contenu = document.getElementById("details").innerText;
+      const blob = new Blob([contenu], { type: "text/plain;charset=utf-8" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "devis.txt";
+      link.click();
+    }
+
+    function resetForm() {
+      document.querySelectorAll("input, textarea").forEach(el => {
+        if (el.type !== "date") el.value = "";
+      });
+      document.getElementById("resultat").style.display = "none";
+    }
+  </script>
+</body>
+</html>
