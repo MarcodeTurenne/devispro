@@ -31,6 +31,17 @@
   <div class="code-list" id="codesList">
     <h3>📋 Codes existants</h3>
     <ul id="listeCodes"></ul>
+<script>
+async function toggleCode(id, actif) {
+  try {
+    await db.collection("codes").doc(id).update({ active: actif });
+    alert(`Code ${actif ? "activé" : "désactivé"} avec succès`);
+    chargerCodes();
+  } catch (e) {
+    alert("Erreur : " + e.message);
+  }
+}
+</script>
   </div>
 
   <script>
@@ -78,8 +89,11 @@
         const data = doc.data();
         const li = document.createElement("li");
         const date = new Date(data.expire).toLocaleDateString();
-        li.textContent = `${doc.id} (${data.nom}) - expire le ${date} - ${data.active ? "✅ Actif" : "⛔ Désactivé"}`;
-        ul.appendChild(li);
+        li.innerHTML = `${doc.id} (${data.nom}) - expire le ${date} - ${data.active ? "✅ Actif" : "⛔ Désactivé"}`;
+        li.innerHTML += ` <button onclick="toggleCode('${doc.id}', ${!data.active})">
+      ${data.active ? "⛔ Désactiver" : "✅ Réactiver"}
+    </button>`;
+ul.appendChild(li);
       });
     }
 
