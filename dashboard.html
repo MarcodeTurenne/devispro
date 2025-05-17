@@ -3,13 +3,15 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Artidevis - Devis automatique</title>
+  <title>Artidevis - Calcul automatique complet</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f9f9f9; }
     h1 { color: #007BFF; }
-    section { margin-bottom: 30px; }
-    table, th, td { border: 1px solid #ccc; border-collapse: collapse; padding: 8px; }
-    input, button { padding: 8px; margin-top: 5px; display: block; }
+    label { display: block; margin-top: 10px; font-weight: bold; }
+    input { padding: 8px; width: 300px; margin-bottom: 10px; }
+    .resultat { margin-top: 20px; padding: 15px; background: #fff; border: 1px solid #ccc; border-radius: 5px; }
+    button { padding: 10px 20px; background: #28a745; color: white; border: none; cursor: pointer; }
+    table, th, td { border: 1px solid #ccc; border-collapse: collapse; padding: 8px; margin-top: 10px; }
   </style>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
@@ -28,87 +30,79 @@
   </script>
 </head>
 <body>
-  <h1>Bienvenue, <span id="artisanName">Artisan</span> 👷‍♂️</h1>
+  <h1>Bienvenue, <span id="artisanName">Artisan</span> 👷</h1>
 
-  <section>
-    <h2>Créer un devis automatique</h2>
-    <input type="text" id="client" placeholder="Nom du client" />
-    <input type="number" id="jours" placeholder="Nombre de jours" />
-    <input type="number" id="tarif" placeholder="Tarif journalier (€)" />
-    <p>Total estimé : <strong id="total">0 €</strong></p>
-    <button onclick="ajouterDevis()">Ajouter le devis</button>
-  </section>
+  <h2>Créer un devis complet</h2>
+  <label>Nom du client :</label>
+  <input type="text" id="client" placeholder="Client..." />
+  <label>Nombre de jours :</label>
+  <input type="number" id="jours" placeholder="Ex: 5" />
+
+  <button onclick="calculer()">Calculer le devis</button>
+
+  <div class="resultat" id="resultat"></div>
 
   <section>
     <h2>Liste des devis</h2>
     <table id="listeDevis">
-      <tr><th>Client</th><th>Jours</th><th>Tarif</th><th>Total</th></tr>
+      <tr><th>Client</th><th>Jours</th><th>Total</th></tr>
     </table>
   </section>
 
-  <section>
-    <h2>Abonnement</h2>
-    <p>5€ / mois</p>
-    <button onclick="alert('Paiement simulé')">Payer maintenant</button>
-  </section>
-
   <script>
-    const nom = localStorage.getItem("userName");
-    if (nom) document.getElementById("artisanName").textContent = nom;
+    const nom = localStorage.getItem("userName") || "Artisan";
+    document.getElementById("artisanName").textContent = nom;
 
-    const joursInput = document.getElementById("jours");
-    const tarifInput = document.getElementById("tarif");
-    const totalOutput = document.getElementById("total");
-
-    function calculerTotal() {
-      const jours = parseFloat(joursInput.value) || 0;
-      const tarif = parseFloat(tarifInput.value) || 0;
-      const total = jours * tarif;
-      totalOutput.textContent = total.toFixed(2) + " €";
-      return total;
-    }
-
-    joursInput.addEventListener("input", calculerTotal);
-    tarifInput.addEventListener("input", calculerTotal);
-
-    function ajouterDevis() {
+    function calculer() {
       const client = document.getElementById("client").value;
-      const jours = parseFloat(joursInput.value);
-      const tarif = parseFloat(tarifInput.value);
-      const total = calculerTotal();
+      const jours = parseFloat(document.getElementById("jours").value);
+      const salaireJour = 120;
+      const salaire = salaireJour * jours;
+      const urssaf = salaire * 0.1;
+      const cotisations = salaire * 0.211;
+      const usure = 30 * jours;
+      const gasoil = 20 * jours;
+      const retraite = 25 * jours;
+      const autres = 15 * jours;
+      const marge = 50 * jours;
 
-      if (!client || !jours || !tarif) {
-        alert("Veuillez remplir tous les champs.");
-        return;
-      }
+      const total = salaire + urssaf + cotisations + usure + gasoil + retraite + autres + marge;
+
+      document.getElementById("resultat").innerHTML = `
+        <strong>Client :</strong> ${client}<br>
+        <strong>Jours :</strong> ${jours}<br>
+        <strong>Salaire :</strong> ${salaire.toFixed(2)} €<br>
+        <strong>URSSAF :</strong> ${urssaf.toFixed(2)} €<br>
+        <strong>Cotisations :</strong> ${cotisations.toFixed(2)} €<br>
+        <strong>Usure :</strong> ${usure.toFixed(2)} €<br>
+        <strong>Gasoil :</strong> ${gasoil.toFixed(2)} €<br>
+        <strong>Retraite :</strong> ${retraite.toFixed(2)} €<br>
+        <strong>Autres :</strong> ${autres.toFixed(2)} €<br>
+        <strong>Marge :</strong> ${marge.toFixed(2)} €<br>
+        <strong>Total :</strong> ${total.toFixed(2)} €<br>
+      `;
 
       db.collection("devis").add({
         client: client,
         jours: jours,
-        tarif: tarif,
         total: total,
         date: new Date().toISOString()
       }).then(() => {
-        alert("Devis enregistré !");
         afficherDevis();
         document.getElementById("client").value = "";
-        joursInput.value = "";
-        tarifInput.value = "";
-        totalOutput.textContent = "0 €";
-      }).catch((error) => {
-        console.error("Erreur:", error);
+        document.getElementById("jours").value = "";
       });
     }
 
     function afficherDevis() {
       const table = document.getElementById("listeDevis");
-      table.innerHTML = "<tr><th>Client</th><th>Jours</th><th>Tarif</th><th>Total</th></tr>";
+      table.innerHTML = "<tr><th>Client</th><th>Jours</th><th>Total</th></tr>";
 
       db.collection("devis").orderBy("date", "desc").get()
         .then((querySnapshot) => {
           querySnapshot.forEach((doc) => {
             const d = doc.data();
-            table.innerHTML += `<tr><td>${d.client}</td><td>${d.jours}</td><td>${d.tarif} €</td><td>${d.total} €</td></tr>`;
+            table.innerHTML += `<tr><td>${d.client}</td><td>${d.jours}</td><td>${d.total.toFixed(2)} €</td></tr>`;
           });
         });
     }
