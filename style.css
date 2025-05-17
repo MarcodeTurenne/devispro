@@ -1,42 +1,4 @@
 
 body {
-  font-family: sans-serif;
-  margin: 0;
-  padding: 0;
-  background: #f7f7f7;
-}
-.app-container {
-  display: flex;
-  gap: 2rem;
-  padding: 2rem;
-}
-.form-section, .result-section {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 10px;
-  box-shadow: 0 0 10px #ccc;
-  flex: 1;
-}
-input {
-  display: block;
-  margin-bottom: 1rem;
-  padding: 0.5rem;
-  width: 100%;
-}
-button {
-  padding: 0.7rem 1rem;
-  background: #007B3E;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-button:hover {
-  background: #005e2e;
-}
-.devis-list {
-  background: #fff;
-  padding: 1rem 2rem;
-  margin: 2rem;
-  border-radius: 10px;
+    font-family: Arial, sans-serif;
 }
