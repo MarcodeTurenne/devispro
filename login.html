@@ -1,0 +1,23 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Connexion DevisPro</title>
+</head>
+<body>
+  <h2>Connexion artisan</h2>
+  <input type="text" id="nom" placeholder="Entrez votre nom" />
+  <button onclick="connecter()">Se connecter</button>
+
+  <script>
+    function connecter() {
+      const nom = document.getElementById('nom').value;
+      if (nom.trim()) {
+        localStorage.setItem('userName', nom);
+        window.location.href = "dashboard.html";
+      }
+    }
+  </script>
+</body>
+</html>
