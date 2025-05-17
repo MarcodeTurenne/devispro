@@ -1,0 +1,66 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Artisan</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #007BFF; }
+        section { margin-bottom: 30px; }
+        table, th, td { border: 1px solid #ccc; border-collapse: collapse; padding: 8px; }
+        input, button { padding: 8px; margin-top: 5px; display: block; }
+    </style>
+</head>
+<body>
+
+<h1>Bienvenue, <span id="artisanName">Artisan</span> 👷‍♂️</h1>
+
+<section>
+    <h2>Créer un nouveau devis</h2>
+    <input type="text" id="client" placeholder="Nom du client" />
+    <input type="number" id="montant" placeholder="Montant (€)" />
+    <button onclick="ajouterDevis()">Ajouter le devis</button>
+</section>
+
+<section>
+    <h2>Liste des devis</h2>
+    <table id="tableDevis">
+        <thead>
+            <tr><th>Client</th><th>Montant</th></tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</section>
+
+<section>
+    <h2>Abonnement mensuel</h2>
+    <p>Prix : 5€ / mois</p>
+    <button onclick="payer()">Payer maintenant (simulation)</button>
+</section>
+
+<script>
+    // Nom de l'artisan
+    document.getElementById('artisanName').textContent = localStorage.getItem('userName') || 'Artisan';
+
+    // Ajout de devis
+    function ajouterDevis() {
+        const client = document.getElementById('client').value;
+        const montant = document.getElementById('montant').value;
+        if (client && montant) {
+            const table = document.querySelector('#tableDevis tbody');
+            const row = table.insertRow();
+            row.innerHTML = `<td>${client}</td><td>${montant} €</td>`;
+            document.getElementById('client').value = '';
+            document.getElementById('montant').value = '';
+        }
+    }
+
+    // Paiement simulation
+    function payer() {
+        alert('Merci pour votre paiement de 5€. Votre abonnement est actif.');
+    }
+</script>
+
+</body>
+</html>
